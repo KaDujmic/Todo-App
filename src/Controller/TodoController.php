@@ -6,6 +6,7 @@ use App\Entity\Todo;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +15,12 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class TodoController extends AbstractController
 {
-    #[Route('/todo', name: 'getTasks', methods: ['GET'])]
+    public function __construct(
+        private Security $security,
+    ) {
+    }
+
+    #[Route('/todo', name: 'getUserTodos', methods: ['GET'])]
     public function getTodos(EntityManagerInterface $em, SerializerInterface $serializer): JsonResponse
     {
         $repository = $em->getRepository(Todo::class);
@@ -28,16 +34,16 @@ class TodoController extends AbstractController
         );
     }
 
-    #[Route('/todo', name: 'createTask', methods: ['POST'])]
+    #[Route('/todo', name: 'createTodo', methods: ['POST'])]
     public function createTodo(EntityManagerInterface $em, Request $request, SerializerInterface $serializer): JsonResponse
     {
         $repository = $em->getRepository(User::class);
         $body = json_decode($request->getContent());
 
         // Replace with the logged in user
-        $user = $repository->find(3);
+        $currentUser = $this->security->getUser();
 
-        $newTodo = new Todo($body, $user);
+        $newTodo = new Todo($body, $currentUser);
 
         $em->persist($newTodo);
         $em->flush();
