@@ -24,7 +24,8 @@ class TodoController extends AbstractController
     public function getTodos(EntityManagerInterface $em, SerializerInterface $serializer): JsonResponse
     {
         $repository = $em->getRepository(Todo::class);
-        $todos = $repository->findBy(['owner' => 3]);
+        $currentUser = json_decode($serializer->serialize($this->security->getUser(), 'json'));
+        $todos = $repository->findBy(['owner' => $currentUser->id]);
 
         $data = json_decode($serializer->serialize($todos, 'json'));
 
