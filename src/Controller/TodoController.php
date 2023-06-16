@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Todo;
-use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -38,10 +37,7 @@ class TodoController extends AbstractController
     #[Route('/todo', name: 'createTodo', methods: ['POST'])]
     public function createTodo(EntityManagerInterface $em, Request $request, SerializerInterface $serializer): JsonResponse
     {
-        $repository = $em->getRepository(User::class);
         $body = json_decode($request->getContent());
-
-        // Replace with the logged in user
         $currentUser = $this->security->getUser();
 
         $newTodo = new Todo($body, $currentUser);
